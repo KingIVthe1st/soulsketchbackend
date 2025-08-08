@@ -110,6 +110,10 @@ export function demoHtml({ baseUrl }) {
         <input id="photo" type="file" accept="image/*" />
       </div>
       <div>
+        <label>Birthday (optional)</label>
+        <input id="birthday" type="date" />
+      </div>
+      <div>
         <label>What vibes attract you?</label>
         <input id="vibes" type="text" placeholder="warm, grounded, playful..."/>
       </div>
@@ -206,7 +210,8 @@ export function demoHtml({ baseUrl }) {
           dealbreakers: document.getElementById('dealbreakers').value,
           celeb: document.getElementById('celeb').value,
           style: 'ethereal',
-          interest: interestChoice
+          interest: interestChoice,
+          birthday: document.getElementById('birthday').value
         }));
         const res = await fetch(api.intake(orderId), { method: 'POST', body: form });
         const txt = await res.text();

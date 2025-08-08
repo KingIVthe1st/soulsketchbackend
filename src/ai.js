@@ -7,6 +7,18 @@ import sharp from 'sharp';
 const hasOpenAIKey = Boolean(process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'sk-replace-me');
 const openai = hasOpenAIKey ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
 
+function computeLifePathNumber(dateStr) {
+  if (!dateStr) return null;
+  const digits = (dateStr.match(/\d/g) || []).map((d) => parseInt(d, 10));
+  if (digits.length === 0) return null;
+  let sum = digits.reduce((a, b) => a + b, 0);
+  const master = (n) => n === 11 || n === 22 || n === 33;
+  while (sum > 9 && !master(sum)) {
+    sum = String(sum).split('').reduce((a, b) => a + Number(b), 0);
+  }
+  return sum;
+}
+
 export async function analyzePhoto({ photoPath }) {
   try {
     if (!openai || !photoPath || !fs.existsSync(photoPath)) return null;
@@ -36,7 +48,9 @@ export async function generateProfileText({ quiz, tier, addons }) {
   const interest = (quiz?.interest || 'surprise').toLowerCase();
   const genderInstruction = interest === 'male' ? 'The soulmate should be male.' : interest === 'female' ? 'The soulmate should be female.' : 'Choose whichever gender best matches the user’s vibe.';
   const photoHints = quiz?.photo_hints ? `\nPhoto hints (neutral attributes): ${JSON.stringify(quiz.photo_hints)}` : '';
-  const prompt = `You are "Soulmate Sketch" AI. Create a concise, romantic but grounded soulmate profile based on user's answers. Include: name (plausible), personality traits, attachment style, love languages, ideal first meeting scenario, "what they're looking for now", and optional astrology/numerology if requested. Keep to ~350-500 words.\nUser Answers: ${JSON.stringify(quiz)}${photoHints}\nTier: ${tier}\nAddons: ${JSON.stringify(addons)}\nStyle: empathetic, modern, slightly mystical, zero medical claims, zero guarantees.`;
+  const lifePath = computeLifePathNumber(quiz?.birthday);
+  const numerology = lifePath ? `\nNumerology: Life Path ${lifePath}. Use 2-3 sentences on how this influences relationship dynamics and the soulmate’s complementary traits (balanced and empowering, no determinism).` : '';
+  const prompt = `You are "Soulmate Sketch" AI. Create a concise, romantic but grounded soulmate profile based on user's answers. Include: name (plausible), personality traits, attachment style, love languages, ideal first meeting scenario, "what they're looking for now", and optional astrology/numerology if requested. Keep to ~350-500 words.\nUser Answers: ${JSON.stringify(quiz)}${photoHints}${numerology}\nTier: ${tier}\nAddons: ${JSON.stringify(addons)}\nStyle: empathetic, modern, slightly mystical, zero medical claims, zero guarantees.`;
   if (!openai) {
     return `Name: Aiden (or similar)\n\nEssence: Warm, grounded, quietly confident. Likely to notice little details about you and make you feel safe to be fully yourself.\n\nAttachment & Love: Secure leaning. Gives reassurance without being overbearing. Primary love languages: Quality Time and Words of Affirmation.\n\nHow you meet: A calm setting where conversation flows—think a cozy cafe on a rainy day, a local bookstore aisle, or a friend’s intimate gathering. You’ll feel a sense of instant familiarity.\n\nRight now: Looking for a relationship that feels like a deep exhale—steady, playful, and honest. Values consistency, humor, and shared little rituals.\n\nAstro vibes (light): Complimentary energy balance with you (yin/yang). Numerology suggests a 2 or 6 life-path resonance—cooperation, care, and home-building.\n\nDisclaimer: This is an inspirational guide for reflection, not a prediction.`;
   }
@@ -59,6 +73,18 @@ export async function generateProfileText({ quiz, tier, addons }) {
 export async function generateImage({ style, quiz }) {
   const interest = (quiz?.interest || 'surprise').toLowerCase();
   const genderPhrase = interest === 'male' ? 'male adult' : interest === 'female' ? 'female adult' : 'adult person';
+  const lifePath = computeLifePathNumber(quiz?.birthday);
+  const auraByLifePath = {
+    1: 'crisp scarlet accents (leadership)',
+    2: 'soft silver-blue harmony glow (partnership)',
+    3: 'vibrant coral highlights (creative, expressive)',
+    4: 'earthy olive undertones (grounded, steady)',
+    5: 'electric teal sparks (adventurous)',
+    6: 'rose-gold warmth (nurturing)',
+    7: 'indigo contemplation glow (introspective)',
+    8: 'amber-gold confidence (ambition)',
+    9: 'violet compassion aura (altruistic)'
+  };
   const styleMap = {
     realistic: 'realistic portrait, soft natural lighting, cinematic, 85mm lens',
     ethereal: 'ethereal mystical portrait, soft glow, celestial accents, pastel tones',
@@ -67,7 +93,8 @@ export async function generateImage({ style, quiz }) {
   };
   const stylePrompt = styleMap[style] || styleMap.ethereal;
   const hintText = quiz?.photo_hints ? ` Use these neutral reference traits gleaned from the user's photo to harmonize aesthetics (not identity): ${JSON.stringify(quiz.photo_hints)}.` : '';
-  const basePrompt = `A ${genderPhrase} portrait of the user's ideal soulmate based on their preferences. Avoid celebrity likeness. Tasteful, kind eyes, warm presence.${hintText} ${stylePrompt}`;
+  const auraText = lifePath && auraByLifePath[lifePath] ? ` Add a subtle ${auraByLifePath[lifePath]} in the color grading.` : '';
+  const basePrompt = `A ${genderPhrase} portrait of the user's ideal soulmate based on their preferences. Avoid celebrity likeness. Tasteful, kind eyes, warm presence.${hintText}${auraText} ${stylePrompt}`;
   let buffer;
   if (!openai) {
     // Fallback: generate a soft gradient placeholder with text
