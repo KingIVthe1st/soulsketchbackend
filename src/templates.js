@@ -64,6 +64,8 @@ export function demoHtml({ baseUrl }) {
     .info h3 { margin: 0 0 6px; font-size: 16px; letter-spacing: .2px }
     .info p { margin: 0; color: #5a516e; font-size: 13px; line-height: 1.5 }
     .badge { display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:12px; color: var(--accent); background: rgba(143,106,224,.12); padding:6px 10px; border-radius: 999px; margin-bottom:8px }
+    .fx { position:absolute; inset:0; z-index:0; filter: saturate(1.05) contrast(1.05) }
+    .info > *:not(canvas) { position: relative; z-index: 1 }
     .floaty { position:absolute; inset:auto; pointer-events:none; opacity:.8; filter: blur(0.2px) saturate(1.1) }
     .floaty.one { right:-10px; top:-10px; width:160px; height:160px; background: radial-gradient(60px 60px at 60% 30%, rgba(235,59,134,.28), transparent 60%), radial-gradient(60px 60px at 20% 80%, rgba(103,58,183,.24), transparent 60%); border-radius:50%; animation: float 9s ease-in-out infinite }
     .floaty.two { left:-20px; bottom:-20px; width:120px; height:120px; background: radial-gradient(50px 50px at 40% 50%, rgba(255,255,255,.55), transparent 60%); border-radius:50%; animation: float 11s ease-in-out infinite reverse }
@@ -150,16 +152,16 @@ export function demoHtml({ baseUrl }) {
         </div>
       </div>
         <div class="info neon">
+          <canvas class="fx" id="fx1"></canvas>
           <div class="badge">Step 1 • Share Your Cosmic Energy</div>
-          <h3>We lock in your preferences</h3>
-          <p>Choose your package and add‑ons. This primes the Soulmate Engine for fidelity, report depth, and extras—modifiable anytime.</p>
+          <h3>Orchestrating your request</h3>
+          <p>Tier and add‑ons configure fidelity, report depth, and delivery—our orchestrator spins up the right pipelines instantly.</p>
           <div class="diagram" aria-hidden="true">
             <div class="chip"><strong>Inputs</strong>Email • Tier • Add‑ons</div>
             <div class="chip"><strong>Engine</strong>Policy‑safe Orchestrator</div>
             <div class="chip"><strong>Outputs</strong>Sketch • PDF • Story</div>
             <div class="flow"></div>
           </div>
-          <div class="floaty one"></div><div class="floaty two"></div>
         </div>
       <div class="actions">
         <span class="muted" id="orderStatus"></span>
@@ -199,9 +201,10 @@ export function demoHtml({ baseUrl }) {
         </div>
       </div>
       <div class="info neon">
+        <canvas class="fx" id="fx2"></canvas>
         <div class="badge">Step 2 • AI & Astrology Unite</div>
         <h3>We read the vibe, never your identity</h3>
-        <p>Upload a photo and answer guided prompts. Our AI extracts neutral visual cues (hair, accessories, style) and computes your numerology Life Path to color‑grade aura and inform compatibility motifs—privacy‑first by design.</p>
+        <p>Optional photo → neutral visual traits. Birthday → Life Path to tune aura and compatibility motifs. Private by default.</p>
         <div class="scanWrap" aria-hidden="true">
           <div class="scanFace"></div>
           <div class="scanLine" id="scan"></div>
@@ -223,9 +226,10 @@ export function demoHtml({ baseUrl }) {
         <button class="btn secondary" id="copyLink">Copy Share Link</button>
       </div>
       <div class="info neon">
+        <canvas class="fx" id="fx3"></canvas>
         <div class="badge">Step 3 • Receive Your Mystical Sketch</div>
         <h3>Your Soulmate Sketch—crafted with heart</h3>
-        <p>We blend preferences, neutral photo cues, and numerology hints to render a stunning portrait and a grounded compatibility report—optimized for social sharing and PDF.</p>
+        <p>Preferences + neutral photo cues + numerology hints → an elegant portrait and compatibility report—social‑ready & PDF.</p>
         <div class="network" aria-hidden="true" id="net">
           <div class="dot"></div>
           <div class="dot"></div>
@@ -419,6 +423,29 @@ export function demoHtml({ baseUrl }) {
     animateCount(document.getElementById('m1'), 50000, "+");
     animateCount(document.getElementById('m2'), 89, "%");
     (function(){ const m3=document.getElementById('m3'); if(m3){ m3.textContent = '48hrs'; }})();
+
+    // Canvas FX: subtle particle waves per step card
+    function fx(canvas, hue){
+      if(!canvas) return; const ctx = canvas.getContext('2d');
+      function resize(){ canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight; }
+      resize();
+      let t = 0; const TAU = Math.PI*2; const dots = 40;
+      function draw(){
+        t += 0.008; ctx.clearRect(0,0,canvas.width,canvas.height);
+        for(let i=0;i<dots;i++){
+          const p = i/dots; const x = p*canvas.width;
+          const y = canvas.height*0.5 + Math.sin(t*2 + p*6)*12 + Math.sin(t + p*12)*6;
+          const r = 1.5 + Math.cos(t*2 + i)*0.8;
+          ctx.fillStyle = `hsla(${hue + Math.sin(p*8+t)*20}, 80%, 70%, 0.45)`;
+          ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+        }
+        requestAnimationFrame(draw);
+      }
+      window.addEventListener('resize', resize); draw();
+    }
+    fx(document.getElementById('fx1'), 320);
+    fx(document.getElementById('fx2'), 260);
+    fx(document.getElementById('fx3'), 285);
   </script>
 </body>
 </html>`;
