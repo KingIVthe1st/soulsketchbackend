@@ -8,6 +8,8 @@ const hasOpenAIKey = Boolean(process.env.OPENAI_API_KEY && process.env.OPENAI_AP
 const openai = hasOpenAIKey ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
 
 export async function generateProfileText({ quiz, tier, addons }) {
+  const interest = (quiz?.interest || 'surprise').toLowerCase();
+  const genderInstruction = interest === 'male' ? 'The soulmate should be male.' : interest === 'female' ? 'The soulmate should be female.' : 'Choose whichever gender best matches the user’s vibe.';
   const prompt = `You are "Soulmate Sketch" AI. Create a concise, romantic but grounded soulmate profile based on user's answers. Include: name (plausible), personality traits, attachment style, love languages, ideal first meeting scenario, "what they're looking for now", and optional astrology/numerology if requested. Keep to ~350-500 words.\nUser Answers: ${JSON.stringify(quiz)}\nTier: ${tier}\nAddons: ${JSON.stringify(addons)}\nStyle: empathetic, modern, slightly mystical, zero medical claims, zero guarantees.`;
   if (!openai) {
     return `Name: Aiden (or similar)\n\nEssence: Warm, grounded, quietly confident. Likely to notice little details about you and make you feel safe to be fully yourself.\n\nAttachment & Love: Secure leaning. Gives reassurance without being overbearing. Primary love languages: Quality Time and Words of Affirmation.\n\nHow you meet: A calm setting where conversation flows—think a cozy cafe on a rainy day, a local bookstore aisle, or a friend’s intimate gathering. You’ll feel a sense of instant familiarity.\n\nRight now: Looking for a relationship that feels like a deep exhale—steady, playful, and honest. Values consistency, humor, and shared little rituals.\n\nAstro vibes (light): Complimentary energy balance with you (yin/yang). Numerology suggests a 2 or 6 life-path resonance—cooperation, care, and home-building.\n\nDisclaimer: This is an inspirational guide for reflection, not a prediction.`;
@@ -17,7 +19,7 @@ export async function generateProfileText({ quiz, tier, addons }) {
       model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: 'You write beautiful, clear, uplifting soulmate reports with ethical disclaimers.' },
-        { role: 'user', content: prompt }
+        { role: 'user', content: prompt + `\nImportant: ${genderInstruction}` }
       ],
       temperature: 0.8,
     });
@@ -29,6 +31,8 @@ export async function generateProfileText({ quiz, tier, addons }) {
 }
 
 export async function generateImage({ style, quiz }) {
+  const interest = (quiz?.interest || 'surprise').toLowerCase();
+  const genderPhrase = interest === 'male' ? 'male adult' : interest === 'female' ? 'female adult' : 'adult person';
   const styleMap = {
     realistic: 'realistic portrait, soft natural lighting, cinematic, 85mm lens',
     ethereal: 'ethereal mystical portrait, soft glow, celestial accents, pastel tones',
@@ -36,7 +40,7 @@ export async function generateImage({ style, quiz }) {
     mystical: 'mystical fantasy portrait, arcane symbols, aura, elegant, painterly'
   };
   const stylePrompt = styleMap[style] || styleMap.ethereal;
-  const basePrompt = `A portrait of the user's ideal soulmate based on their preferences. Avoid celebrity likeness. Tasteful, kind eyes, warm presence. ${stylePrompt}`;
+  const basePrompt = `A ${genderPhrase} portrait of the user's ideal soulmate based on their preferences. Avoid celebrity likeness. Tasteful, kind eyes, warm presence. ${stylePrompt}`;
   let buffer;
   if (!openai) {
     // Fallback: generate a soft gradient placeholder with text

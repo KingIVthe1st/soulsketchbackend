@@ -14,13 +14,13 @@ export function createRouter() {
   const db = getDb();
 
   router.post('/orders', (req, res) => {
-    const { email, tier = 'premium', addons = [] } = req.body || {};
+    const { email, tier = 'premium', addons = [], interest = 'surprise' } = req.body || {};
     if (!email) return res.status(400).json({ error: 'email required' });
     const id = randomUUID();
     const now = new Date().toISOString();
     const price = getPriceCentsForTier(tier);
-    db.prepare(`INSERT INTO orders (id, email, tier, addons, status, created_at, updated_at, price_cents, currency) VALUES (?, ?, ?, ?, 'created', ?, ?, ?, 'usd')`)
-      .run(id, email, tier, JSON.stringify(addons), now, now, price);
+    db.prepare(`INSERT INTO orders (id, email, tier, addons, status, created_at, updated_at, price_cents, currency, quiz_answers) VALUES (?, ?, ?, ?, 'created', ?, ?, ?, 'usd', ?)`)
+      .run(id, email, tier, JSON.stringify(addons), now, now, price, JSON.stringify({ interest }));
     res.json({ id, price_cents: price, currency: 'usd' });
   });
 

@@ -80,6 +80,14 @@ export function demoHtml({ baseUrl }) {
         </select>
       </div>
       <div>
+        <label>Interested in</label>
+        <select id="interest">
+          <option value="female">Female</option>
+          <option value="male">Male</option>
+          <option value="surprise" selected>Surprise me</option>
+        </select>
+      </div>
+      <div>
         <label>Add-ons</label>
         <div class="row">
           <label><input type="checkbox" value="aura" class="addon"/> Aura reading</label>
@@ -157,6 +165,7 @@ export function demoHtml({ baseUrl }) {
       });
     }
 
+    let interestChoice = 'surprise';
     async function createOrder(){
       const btn = document.getElementById('createOrder');
       const statusEl = document.getElementById('orderStatus');
@@ -164,9 +173,10 @@ export function demoHtml({ baseUrl }) {
       try {
         const email = document.getElementById('email').value;
         const tier = document.getElementById('tier').value;
+        interestChoice = document.getElementById('interest').value || 'surprise';
         const addonEls = document.querySelectorAll('.addon:checked');
         const addons = Array.from(addonEls).map(a => a.value);
-        const res = await fetch(api.createOrder(), { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email, tier, addons }) });
+        const res = await fetch(api.createOrder(), { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email, tier, addons, interest: interestChoice }) });
         const txt = await res.text();
         if(!res.ok) throw new Error('Create failed: ' + txt);
         const data = JSON.parse(txt);
@@ -191,7 +201,13 @@ export function demoHtml({ baseUrl }) {
         const form = new FormData();
         const file = document.getElementById('photo').files[0];
         if(file) form.append('photo', file);
-        form.append('quiz', JSON.stringify({ vibes: document.getElementById('vibes').value, dealbreakers: document.getElementById('dealbreakers').value, celeb: document.getElementById('celeb').value, style: 'ethereal' }));
+        form.append('quiz', JSON.stringify({
+          vibes: document.getElementById('vibes').value,
+          dealbreakers: document.getElementById('dealbreakers').value,
+          celeb: document.getElementById('celeb').value,
+          style: 'ethereal',
+          interest: interestChoice
+        }));
         const res = await fetch(api.intake(orderId), { method: 'POST', body: form });
         const txt = await res.text();
         if(!res.ok) throw new Error('Intake failed: ' + txt);
