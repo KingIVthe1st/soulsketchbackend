@@ -20,6 +20,7 @@ export function demoHtml({ baseUrl }) {
     .aurora { position: fixed; inset: -20%; z-index: -1; background: conic-gradient(from 180deg at 50% 50%, rgba(235,59,134,0.16), rgba(103,58,183,0.16), rgba(235,59,134,0.16)); mix-blend-mode: screen; filter: blur(80px); animation: swirl 18s linear infinite; opacity: .9 }
     @keyframes swirl { to { transform: rotate(360deg) } }
     .grain { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .06; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 140 140"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.4"/></svg>'); }
+    #stars { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .9 }
     header { padding: 48px 20px 28px; text-align:center; color: white; position: relative; }
     h1 { font-size: 44px; margin: 0; letter-spacing: -0.5px; background: linear-gradient(90deg, #fff, #ffd7ea); -webkit-background-clip: text; background-clip: text; color: transparent; }
     h1 span { color: var(--pink); -webkit-text-stroke: 0.6px rgba(255,255,255,.25); }
@@ -70,7 +71,9 @@ export function demoHtml({ baseUrl }) {
     .track { position:relative; height:8px; border-radius:999px; overflow:hidden; background: linear-gradient(90deg, #edd8ef, #f4e6f8) }
     .track > span { position:absolute; inset:0; background: linear-gradient(90deg, transparent, var(--pink), var(--accent), transparent); animation: sweep 2.4s ease-in-out infinite }
     .caps { display:grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap:10px; margin-top:10px }
-    .cap { border-radius:14px; border:1px solid rgba(232,224,246,.95); background: rgba(255,255,255,.92); padding:12px; text-align:center; box-shadow: 0 10px 28px rgba(43,0,62,.08) }
+    .cap { position:relative; border-radius:14px; border:1px solid rgba(232,224,246,.95); background: rgba(255,255,255,.92); padding:12px; text-align:center; box-shadow: 0 10px 28px rgba(43,0,62,.08); overflow:hidden }
+    .cap::after { content:""; position:absolute; top:-120%; left:-20%; width:40%; height:300%; background: linear-gradient(120deg, transparent, rgba(255,255,255,.85), transparent); transform: rotate(25deg); animation: glint 4s ease-in-out infinite; }
+    @keyframes glint { 0%{ transform: translateX(-120%) rotate(25deg) } 45%{ transform: translateX(220%) rotate(25deg) } 100%{ transform: translateX(220%) rotate(25deg) } }
     .cap strong { display:block; font-size:14px; color:#2D2240 }
     .cap small { color:#5b4a86; font-size:12px }
     .fx { position:absolute; inset:0; z-index:0; filter: saturate(1.05) contrast(1.05) }
@@ -114,6 +117,7 @@ export function demoHtml({ baseUrl }) {
   <div class="bg"></div>
   <div class="aurora"></div>
   <div class="grain"></div>
+  <canvas id="stars"></canvas>
   <header>
     <h1>💘 Discover Your Perfect Match with <span>AI Magic</span></h1>
     <p class="tagline">Get a custom soulmate sketch & compatibility profile powered by advanced AI that analyzes your photo, personality, and energy signature. See exactly what your destined partner looks like before you meet them.</p>
@@ -457,6 +461,36 @@ export function demoHtml({ baseUrl }) {
     fx(document.getElementById('fx1'), 320);
     fx(document.getElementById('fx2'), 260);
     fx(document.getElementById('fx3'), 285);
+
+    // Shooting stars background
+    (function(){
+      const c = document.getElementById('stars'); if(!c) return; const ctx = c.getContext('2d');
+      const DPR = Math.max(1, Math.floor(window.devicePixelRatio||1));
+      function resize(){ c.width = c.clientWidth * DPR; c.height = c.clientHeight * DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
+      resize();
+      const stars = []; const MAX = 18;
+      function spawn(){
+        const y = Math.random() * c.clientHeight * .7;
+        const len = 120 + Math.random()*140; const speed = 2 + Math.random()*3;
+        stars.push({ x: -40, y, len, life: 0, speed });
+      }
+      function tick(){
+        ctx.clearRect(0,0,c.clientWidth,c.clientHeight);
+        // faint star field
+        ctx.fillStyle = 'rgba(255,255,255,.6)';
+        for(let i=0;i<60;i++){ ctx.fillRect((i*71 % c.clientWidth), (i*113 % c.clientHeight), 1, 1); }
+        // comets
+        for(let i=stars.length-1;i>=0;i--){ const s = stars[i]; s.x += s.speed*3; s.y += s.speed*0.6; s.life += 0.02; if(s.x - s.len > c.clientWidth+80) stars.splice(i,1);
+          const grad = ctx.createLinearGradient(s.x-s.len, s.y-s.len*0.2, s.x, s.y);
+          grad.addColorStop(0, 'rgba(255,255,255,0)'); grad.addColorStop(1, 'rgba(255,255,255,.75)');
+          ctx.strokeStyle = grad; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(s.x-s.len, s.y-s.len*0.2); ctx.lineTo(s.x, s.y); ctx.stroke();
+          ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.beginPath(); ctx.arc(s.x, s.y, 1.6, 0, Math.PI*2); ctx.fill();
+        }
+        if(stars.length < MAX && Math.random() < .08) spawn();
+        requestAnimationFrame(tick);
+      }
+      window.addEventListener('resize', resize); tick();
+    })();
   </script>
 </body>
 </html>`;
