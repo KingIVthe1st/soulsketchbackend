@@ -52,6 +52,8 @@ export function demoHtml({ baseUrl }) {
 
     /* Explainer visuals */
     .info { position: relative; overflow: hidden; border-radius: 16px; padding: 16px; background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.65)); border: 1px solid rgba(233, 225, 245, 0.9); box-shadow: 0 18px 48px rgba(43,0,62,.08); }
+    .info.neon { border: none; }
+    .info.neon::before { content:""; position:absolute; inset: -1px; border-radius: 18px; padding: 1px; background: conic-gradient(from 0deg, var(--pink), var(--accent), var(--pink)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: spin 6s linear infinite; }
     .info h3 { margin: 0 0 6px; font-size: 16px; letter-spacing: .2px }
     .info p { margin: 0; color: #5a516e; font-size: 13px; line-height: 1.5 }
     .badge { display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:12px; color: var(--accent); background: rgba(143,106,224,.12); padding:6px 10px; border-radius: 999px; margin-bottom:8px }
@@ -66,6 +68,23 @@ export function demoHtml({ baseUrl }) {
     .scanLine { position:absolute; left:0; right:0; height:2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity:.85; animation: scan 2.6s linear infinite; }
     @keyframes scan { 0%{ top:10% } 50%{ top:88% } 100%{ top:10% } }
     .digits { position:absolute; bottom:8px; right:10px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 11px; background: rgba(103,58,183,.08); border:1px solid rgba(103,58,183,.22); color:#5b4a86; padding:4px 6px; border-radius:6px; }
+
+    /* Step 1 pipeline diagram */
+    .diagram { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px; margin-top:10px }
+    .chip { background: rgba(255,255,255,0.9); border:1px solid rgba(230,224,244,.9); border-radius:12px; padding:10px; text-align:center; font-size:12px; color:#5b4a86; position:relative; overflow:hidden }
+    .chip strong { display:block; font-size:13px; color: var(--text) }
+    .flow { grid-column: 1/-1; height:6px; background: linear-gradient(90deg, transparent, var(--pink), var(--accent), transparent); border-radius:999px; position:relative; overflow:hidden }
+    .flow::after { content:""; position:absolute; left:-40%; top:0; bottom:0; width:40%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent); animation: sweep 1.8s ease-in-out infinite }
+    @keyframes sweep { 0%{ left:-40% } 50%{ left:60% } 100%{ left:140% } }
+
+    /* Step 3 mini network */
+    .network { position: relative; height: 120px; margin-top: 8px; border-radius: 12px; background: radial-gradient(400px 120px at 30% 20%, rgba(235,59,134,.08), transparent), radial-gradient(500px 160px at 80% 80%, rgba(103,58,183,.08), transparent); }
+    .dot { position:absolute; width:10px; height:10px; border-radius:999px; background: radial-gradient(circle at 30% 30%, #fff, var(--accent)); box-shadow: 0 6px 20px rgba(103,58,183,.25); animation: pulse 2.6s ease-in-out infinite }
+    .dot:nth-child(1){ left:14%; top:22%; animation-delay: 0s }
+    .dot:nth-child(2){ left:46%; top:58%; animation-delay: .4s }
+    .dot:nth-child(3){ left:72%; top:28%; animation-delay: .9s }
+    @keyframes pulse { 0%,100%{ transform: scale(1) } 50%{ transform: scale(1.35) } }
+    .link { position:absolute; height:2px; background: linear-gradient(90deg, rgba(255,255,255,.2), rgba(103,58,183,.55)); transform-origin: left center; opacity:.8 }
 
     /* Reduced motion support */
     @media (prefers-reduced-motion: reduce){
@@ -117,10 +136,16 @@ export function demoHtml({ baseUrl }) {
           <label><input type="checkbox" value="past_life" class="addon" checked/> Past life</label>
         </div>
       </div>
-        <div class="info">
+        <div class="info neon">
           <div class="badge">Step 1 • Secure order setup</div>
           <h3>We lock in your preferences</h3>
-          <p>Your package and add‑ons determine image resolution, report depth, and bonus assets. You can change anything later. We only store what’s needed to create your soulmate sketch.</p>
+          <p>Your package and add‑ons shape fidelity, report depth, and extras. Change anything later—this just primes the engine.</p>
+          <div class="diagram" aria-hidden="true">
+            <div class="chip"><strong>Inputs</strong>Email • Tier • Add‑ons</div>
+            <div class="chip"><strong>Engine</strong>Policy‑safe Orchestrator</div>
+            <div class="chip"><strong>Outputs</strong>Sketch • PDF • Story</div>
+            <div class="flow"></div>
+          </div>
           <div class="floaty one"></div><div class="floaty two"></div>
         </div>
       <div class="actions">
@@ -160,10 +185,10 @@ export function demoHtml({ baseUrl }) {
           <button class="btn secondary" id="submitQuiz">Continue</button>
         </div>
       </div>
-      <div class="info">
+      <div class="info neon">
         <div class="badge">Step 2 • Gentle analysis</div>
-        <h3>We read the vibe, not your identity</h3>
-        <p>Your photo (if added) is analyzed for neutral, visible traits only—like hair color, style, accessories—and is never used to guess identity. Your birthday helps compute a Life Path to color‑grade the aura and inform compatibility themes.</p>
+        <h3>We read the vibe, never your identity</h3>
+        <p>Optional photo → neutral traits (hair, accessories, style). Birthday → Life Path number that tunes aura color and compatibility motifs. Private data stays private.</p>
         <div class="scanWrap" aria-hidden="true">
           <div class="scanFace"></div>
           <div class="scanLine" id="scan"></div>
@@ -184,10 +209,17 @@ export function demoHtml({ baseUrl }) {
         <a id="storyLink" class="btn ghost" target="_blank">Open Story Image</a>
         <button class="btn secondary" id="copyLink">Copy Share Link</button>
       </div>
-      <div class="info">
+      <div class="info neon">
         <div class="badge">Step 3 • Creation</div>
         <h3>Your Soulmate Sketch—crafted with heart</h3>
-        <p>We blend your preferences, neutral photo cues, and numerology hints to generate a portrait and a romantic, grounded profile. The image is optimized for sharing and the PDF pairs story with ethics‑first guidance.</p>
+        <p>We blend your preferences, neutral photo cues, and numerology hints to render an elegant portrait + a grounded story. Social and PDF outputs are optimized and ready.</p>
+        <div class="network" aria-hidden="true" id="net">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="link" id="l1"></div>
+          <div class="link" id="l2"></div>
+        </div>
       </div>
       <div class="actions">
         <button class="btn ghost" id="back2">Back</button>
@@ -336,6 +368,28 @@ export function demoHtml({ baseUrl }) {
     // Tiny numerology helper mirrored from backend
     function computeLifePath(dateStr){
       if(!dateStr) return null; const ds=(dateStr.match(/\d/g)||[]).map(d=>parseInt(d,10)); if(!ds.length) return null; let s=ds.reduce((a,b)=>a+b,0); const m=(n)=>n===11||n===22||n===33; while(s>9 && !m(s)){ s=String(s).split('').reduce((a,b)=>a+Number(b),0)} return s; }
+
+    // Build simple links between dots in step 3 visual
+    requestAnimationFrame(()=>{
+      const net = document.getElementById('net');
+      if(!net) return;
+      const dots = net.querySelectorAll('.dot');
+      const l1 = document.getElementById('l1');
+      const l2 = document.getElementById('l2');
+      function connect(a,b,el){
+        const ar = a.getBoundingClientRect();
+        const br = b.getBoundingClientRect();
+        const nr = net.getBoundingClientRect();
+        const ax = ar.left + ar.width/2 - nr.left; const ay = ar.top + ar.height/2 - nr.top;
+        const bx = br.left + br.width/2 - nr.left; const by = br.top + br.height/2 - nr.top;
+        const dx = bx-ax; const dy = by-ay; const len = Math.hypot(dx,dy);
+        const ang = Math.atan2(dy,dx) * 180/Math.PI;
+        el.style.left = ax + 'px'; el.style.top = ay + 'px'; el.style.width = len + 'px'; el.style.transform = 'rotate(' + ang + 'deg)';
+      }
+      function layout(){ if(dots.length>=3){ connect(dots[0], dots[1], l1); connect(dots[1], dots[2], l2); } }
+      layout();
+      window.addEventListener('resize', layout);
+    });
   </script>
 </body>
 </html>`;
