@@ -24,7 +24,7 @@ export function createRouter() {
     res.json({ id, price_cents: price, currency: 'usd' });
   });
 
-  router.post('/orders/:id/intake', upload.single('photo'), (req, res) => {
+  router.post('/orders/:id/intake', upload.single('photo'), async (req, res) => {
     const { id } = req.params;
     const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(id);
     if (!order) return res.status(404).json({ error: 'not found' });
@@ -38,8 +38,10 @@ export function createRouter() {
     const quiz = JSON.parse(req.body.quiz || '{}');
     // Analyze uploaded photo for neutral, visible attributes to steer generation
     if (photoPath) {
-      const hints = await analyzePhoto({ photoPath: path.join(process.cwd(), photoPath) });
-      if (hints) quiz.photo_hints = hints;
+      try {
+        const hints = await analyzePhoto({ photoPath: path.join(process.cwd(), photoPath) });
+        if (hints) quiz.photo_hints = hints;
+      } catch {}
     }
     db.prepare('UPDATE orders SET photo_path = ?, quiz_answers = ?, updated_at = ? WHERE id = ?')
       .run(photoPath, JSON.stringify(quiz), new Date().toISOString(), id);
