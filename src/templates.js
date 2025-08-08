@@ -49,6 +49,28 @@ export function demoHtml({ baseUrl }) {
     .share { display:flex; gap: 12px; align-items:center; }
     .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.35); border-top-color: white; border-radius: 50%; display: inline-block; animation: spin 800ms linear infinite; margin-left: 8px; }
     @keyframes spin { to { transform: rotate(360deg) } }
+
+    /* Explainer visuals */
+    .info { position: relative; overflow: hidden; border-radius: 16px; padding: 16px; background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.65)); border: 1px solid rgba(233, 225, 245, 0.9); box-shadow: 0 18px 48px rgba(43,0,62,.08); }
+    .info h3 { margin: 0 0 6px; font-size: 16px; letter-spacing: .2px }
+    .info p { margin: 0; color: #5a516e; font-size: 13px; line-height: 1.5 }
+    .badge { display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:12px; color: var(--accent); background: rgba(143,106,224,.12); padding:6px 10px; border-radius: 999px; margin-bottom:8px }
+    .floaty { position:absolute; inset:auto; pointer-events:none; opacity:.8; filter: blur(0.2px) saturate(1.1) }
+    .floaty.one { right:-10px; top:-10px; width:160px; height:160px; background: radial-gradient(60px 60px at 60% 30%, rgba(235,59,134,.28), transparent 60%), radial-gradient(60px 60px at 20% 80%, rgba(103,58,183,.24), transparent 60%); border-radius:50%; animation: float 9s ease-in-out infinite }
+    .floaty.two { left:-20px; bottom:-20px; width:120px; height:120px; background: radial-gradient(50px 50px at 40% 50%, rgba(255,255,255,.55), transparent 60%); border-radius:50%; animation: float 11s ease-in-out infinite reverse }
+    @keyframes float { 0%,100%{ transform: translateY(0) } 50% { transform: translateY(-10px) } }
+
+    /* Scan visual for photo analysis */
+    .scanWrap { position: relative; width: 100%; max-width: 380px; aspect-ratio: 1/1; border-radius: 14px; background: linear-gradient(180deg, #faf7fb, #f3eef9); border:1px dashed #e6ddf5; overflow:hidden; margin-top: 8px }
+    .scanFace { position:absolute; inset:10% 10% auto 10%; height:80%; border:2px solid rgba(103,58,183,.45); border-radius: 50% 50% 44% 44%/ 45% 45% 55% 55%; filter: drop-shadow(0 10px 24px rgba(103,58,183,.15)) }
+    .scanLine { position:absolute; left:0; right:0; height:2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity:.85; animation: scan 2.6s linear infinite; }
+    @keyframes scan { 0%{ top:10% } 50%{ top:88% } 100%{ top:10% } }
+    .digits { position:absolute; bottom:8px; right:10px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 11px; background: rgba(103,58,183,.08); border:1px solid rgba(103,58,183,.22); color:#5b4a86; padding:4px 6px; border-radius:6px; }
+
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce){
+      .aurora, .floaty, .scanLine { animation: none }
+    }
   </style>
 </head>
 <body>
@@ -95,6 +117,12 @@ export function demoHtml({ baseUrl }) {
           <label><input type="checkbox" value="past_life" class="addon" checked/> Past life</label>
         </div>
       </div>
+        <div class="info">
+          <div class="badge">Step 1 • Secure order setup</div>
+          <h3>We lock in your preferences</h3>
+          <p>Your package and add‑ons determine image resolution, report depth, and bonus assets. You can change anything later. We only store what’s needed to create your soulmate sketch.</p>
+          <div class="floaty one"></div><div class="floaty two"></div>
+        </div>
       <div class="actions">
         <span class="muted" id="orderStatus"></span>
         <button class="btn" id="createOrder">Continue</button>
@@ -132,6 +160,16 @@ export function demoHtml({ baseUrl }) {
           <button class="btn secondary" id="submitQuiz">Continue</button>
         </div>
       </div>
+      <div class="info">
+        <div class="badge">Step 2 • Gentle analysis</div>
+        <h3>We read the vibe, not your identity</h3>
+        <p>Your photo (if added) is analyzed for neutral, visible traits only—like hair color, style, accessories—and is never used to guess identity. Your birthday helps compute a Life Path to color‑grade the aura and inform compatibility themes.</p>
+        <div class="scanWrap" aria-hidden="true">
+          <div class="scanFace"></div>
+          <div class="scanLine" id="scan"></div>
+          <div class="digits" id="digits">LP —</div>
+        </div>
+      </div>
     </div>
     </div>
 
@@ -145,6 +183,11 @@ export function demoHtml({ baseUrl }) {
       <div id="share" class="share" style="display:none;">
         <a id="storyLink" class="btn ghost" target="_blank">Open Story Image</a>
         <button class="btn secondary" id="copyLink">Copy Share Link</button>
+      </div>
+      <div class="info">
+        <div class="badge">Step 3 • Creation</div>
+        <h3>Your Soulmate Sketch—crafted with heart</h3>
+        <p>We blend your preferences, neutral photo cues, and numerology hints to generate a portrait and a romantic, grounded profile. The image is optimized for sharing and the PDF pairs story with ethics‑first guidance.</p>
       </div>
       <div class="actions">
         <button class="btn ghost" id="back2">Back</button>
@@ -167,6 +210,13 @@ export function demoHtml({ baseUrl }) {
         document.getElementById(id).classList.toggle('active', i===step-1);
         document.getElementById('s'+(i+1)).className = 'step ' + (i<step? 'done': '');
       });
+      // Activate scan visual when entering step 2
+      if (step===2) {
+        const digits = document.getElementById('digits');
+        const b = document.getElementById('birthday').value || '';
+        const lp = computeLifePath(b);
+        digits && (digits.textContent = lp ? ('LP ' + lp) : 'LP —');
+      }
     }
 
     let interestChoice = 'surprise';
@@ -282,6 +332,10 @@ export function demoHtml({ baseUrl }) {
       }
       setTimeout(()=>box.remove(),1200);
     }
+
+    // Tiny numerology helper mirrored from backend
+    function computeLifePath(dateStr){
+      if(!dateStr) return null; const ds=(dateStr.match(/\d/g)||[]).map(d=>parseInt(d,10)); if(!ds.length) return null; let s=ds.reduce((a,b)=>a+b,0); const m=(n)=>n===11||n===22||n===33; while(s>9 && !m(s)){ s=String(s).split('').reduce((a,b)=>a+Number(b),0)} return s; }
   </script>
 </body>
 </html>`;
