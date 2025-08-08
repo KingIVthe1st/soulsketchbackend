@@ -20,7 +20,7 @@ export function demoHtml({ baseUrl }) {
     .aurora { position: fixed; inset: -20%; z-index: -1; background: conic-gradient(from 180deg at 50% 50%, rgba(235,59,134,0.16), rgba(103,58,183,0.16), rgba(235,59,134,0.16)); mix-blend-mode: screen; filter: blur(80px); animation: swirl 18s linear infinite; opacity: .9 }
     @keyframes swirl { to { transform: rotate(360deg) } }
     .grain { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .06; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 140 140"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.4"/></svg>'); }
-    #stars { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .9 }
+    #stars { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .7 }
     header { padding: 48px 20px 28px; text-align:center; color: white; position: relative; }
     h1 { font-size: 44px; margin: 0; letter-spacing: -0.5px; background: linear-gradient(90deg, #fff, #ffd7ea); -webkit-background-clip: text; background-clip: text; color: transparent; }
     h1 span { color: var(--pink); -webkit-text-stroke: 0.6px rgba(255,255,255,.25); }
@@ -468,25 +468,29 @@ export function demoHtml({ baseUrl }) {
       const DPR = Math.max(1, Math.floor(window.devicePixelRatio||1));
       function resize(){ c.width = c.clientWidth * DPR; c.height = c.clientHeight * DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
       resize();
-      const stars = []; const MAX = 18;
+      const stars = []; const MAX = 8; // fewer simultaneous comets
+      // build starfield points with subtle twinkle
+      const points = []; const PCOUNT = 140; // dense but light
+      for(let i=0;i<PCOUNT;i++){
+        points.push({ x: Math.random()*c.clientWidth, y: Math.random()*c.clientHeight, r: Math.random()*1.2+0.3, p: Math.random()*Math.PI*2, sp: Math.random()*0.004+0.001 });
+      }
       function spawn(){
-        const y = Math.random() * c.clientHeight * .7;
-        const len = 120 + Math.random()*140; const speed = 2 + Math.random()*3;
+        const y = Math.random() * c.clientHeight * .6;
+        const len = 100 + Math.random()*120; const speed = 1.6 + Math.random()*2.2;
         stars.push({ x: -40, y, len, life: 0, speed });
       }
       function tick(){
         ctx.clearRect(0,0,c.clientWidth,c.clientHeight);
-        // faint star field
-        ctx.fillStyle = 'rgba(255,255,255,.6)';
-        for(let i=0;i<60;i++){ ctx.fillRect((i*71 % c.clientWidth), (i*113 % c.clientHeight), 1, 1); }
+        // animated starfield (subtle twinkle & micro parallax)
+        for(const s of points){ s.p += s.sp; const tw = (Math.sin(s.p)+1)/2; const r = s.r + tw*0.35; ctx.fillStyle = 'rgba(255,255,255,' + (0.25 + tw*0.35) + ')'; ctx.beginPath(); ctx.arc(s.x, s.y, r, 0, Math.PI*2); ctx.fill(); }
         // comets
-        for(let i=stars.length-1;i>=0;i--){ const s = stars[i]; s.x += s.speed*3; s.y += s.speed*0.6; s.life += 0.02; if(s.x - s.len > c.clientWidth+80) stars.splice(i,1);
-          const grad = ctx.createLinearGradient(s.x-s.len, s.y-s.len*0.2, s.x, s.y);
+        for(let i=stars.length-1;i>=0;i--){ const s = stars[i]; s.x += s.speed*2.4; s.y += s.speed*0.5; s.life += 0.02; if(s.x - s.len > c.clientWidth+80) stars.splice(i,1);
+          const grad = ctx.createLinearGradient(s.x-s.len, s.y-s.len*0.18, s.x, s.y);
           grad.addColorStop(0, 'rgba(255,255,255,0)'); grad.addColorStop(1, 'rgba(255,255,255,.75)');
-          ctx.strokeStyle = grad; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(s.x-s.len, s.y-s.len*0.2); ctx.lineTo(s.x, s.y); ctx.stroke();
+          ctx.strokeStyle = grad; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(s.x-s.len, s.y-s.len*0.18); ctx.lineTo(s.x, s.y); ctx.stroke();
           ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.beginPath(); ctx.arc(s.x, s.y, 1.6, 0, Math.PI*2); ctx.fill();
         }
-        if(stars.length < MAX && Math.random() < .08) spawn();
+        if(stars.length < MAX && Math.random() < .04) spawn();
         requestAnimationFrame(tick);
       }
       window.addEventListener('resize', resize); tick();
