@@ -111,6 +111,22 @@ export function demoHtml({ baseUrl }) {
     @media (prefers-reduced-motion: reduce){
       .aurora, .floaty, .scanLine { animation: none }
     }
+
+    /* Mobile-first optimizations without losing motion */
+    @media (max-width: 640px){
+      h1 { font-size: 32px }
+      .wizard { border-radius: 14px }
+      .panel { padding: 18px }
+      .grid { gap: 12px }
+      .caps { grid-template-columns: 1fr }
+      .diagram { grid-template-columns: 1fr }
+      .cap { padding: 10px }
+      .holo { padding: 14px; border-radius: 16px }
+      .holoTitle { font-size: 18px }
+      .btn { padding: 12px 16px }
+      .ribbon { top: 46px }
+      .scanWrap { max-width: 300px }
+    }
   </style>
 </head>
 <body>
@@ -134,7 +150,7 @@ export function demoHtml({ baseUrl }) {
     <div class="ribbon" aria-hidden="true"></div>
 
     <div class="panel active" id="p1">
-      <h2>1) Start your order</h2>
+      <h2>1) Let's build your profile</h2>
       <div class="grid">
       <div>
         <label>Email</label>
