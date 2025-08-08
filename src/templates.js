@@ -20,12 +20,19 @@ export function demoHtml({ baseUrl }) {
     .aurora { position: fixed; inset: -20%; z-index: -1; background: conic-gradient(from 180deg at 50% 50%, rgba(235,59,134,0.16), rgba(103,58,183,0.16), rgba(235,59,134,0.16)); mix-blend-mode: screen; filter: blur(80px); animation: swirl 18s linear infinite; opacity: .9 }
     @keyframes swirl { to { transform: rotate(360deg) } }
     .grain { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .06; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 140 140"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.4"/></svg>'); }
-    header { padding: 48px 20px 28px; text-align:center; color: white; }
-    h1 { font-size: 44px; margin: 0; letter-spacing: -0.5px; }
-    h1 span { color: var(--pink); }
+    header { padding: 48px 20px 28px; text-align:center; color: white; position: relative; }
+    h1 { font-size: 44px; margin: 0; letter-spacing: -0.5px; background: linear-gradient(90deg, #fff, #ffd7ea); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    h1 span { color: var(--pink); -webkit-text-stroke: 0.6px rgba(255,255,255,.25); }
+    .tagline { margin: 10px auto 0; max-width: 820px; color: rgba(255,255,255,.9); font-size: 16px; line-height: 1.45 }
+    .stats { margin: 16px auto 0; display:flex; gap: 10px; justify-content:center; flex-wrap: wrap }
+    .stat { display:flex; gap: 10px; align-items:center; background: rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.25); padding: 10px 14px; border-radius: 999px; backdrop-filter: blur(6px); box-shadow: 0 10px 30px rgba(0,0,0,.15) }
+    .num { font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; text-shadow: 0 0 12px rgba(235,59,134,.45) }
+    .label { color: #ffecf5; opacity: .9; font-size: 13px }
     .shell { max-width: 980px; margin: 0 auto 80px; padding: 0 16px; }
-    .wizard { backdrop-filter: saturate(1.4) blur(14px); background: linear-gradient(180deg, rgba(255,255,255,0.75), rgba(255,255,255,0.55)); border: 1px solid rgba(255,255,255,0.35); border-radius: 20px; box-shadow: var(--shadow); overflow: hidden; }
+    .wizard { backdrop-filter: saturate(1.4) blur(14px); background: linear-gradient(180deg, rgba(255,255,255,0.75), rgba(255,255,255,0.55)); border: 1px solid rgba(255,255,255,0.35); border-radius: 20px; box-shadow: var(--shadow); overflow: hidden; position: relative; }
     .steps { display:flex; gap: 8px; padding: 12px; background: #faf7fb; border-bottom: 1px solid #eee; }
+    .ribbon { position:absolute; left: 12px; right: 12px; top: 52px; height: 2px; background: linear-gradient(90deg, transparent, rgba(235,59,134,.8), rgba(103,58,183,.9), transparent); opacity: .5; overflow:hidden; border-radius: 999px }
+    .ribbon::after { content:""; position:absolute; left:-30%; width:30%; top:0; bottom:0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.8), transparent); animation: sweep 2.4s ease-in-out infinite }
     .step { flex:1; height: 8px; border-radius: 999px; background:#eee; position:relative; overflow:hidden; }
     .step.active::after, .step.done::after { content:''; position:absolute; inset:0; background: linear-gradient(90deg, var(--pink), var(--accent)); }
     .panel { padding: 28px; display:none; }
@@ -97,13 +104,19 @@ export function demoHtml({ baseUrl }) {
   <div class="aurora"></div>
   <div class="grain"></div>
   <header>
-    <h1>💘 <span>Soulmate Sketch</span> Demo</h1>
-    <p class="muted">Experience a streamlined version of the flow powering the landing page.</p>
+    <h1>💘 Discover Your Perfect Match with <span>AI Magic</span></h1>
+    <p class="tagline">Get a custom soulmate sketch & compatibility profile powered by advanced AI that analyzes your photo, personality, and energy signature. See exactly what your destined partner looks like before you meet them.</p>
+    <div class="stats" aria-hidden="true">
+      <div class="stat"><span class="num" id="m1">0</span><span class="label">Sketches Created</span></div>
+      <div class="stat"><span class="num" id="m2">0</span><span class="label">Accuracy Rate</span></div>
+      <div class="stat"><span class="num" id="m3">0</span><span class="label">Delivery Time</span></div>
+    </div>
   </header>
 
   <div class="shell">
   <div class="wizard">
     <div class="steps"><div class="step done" id="s1"></div><div class="step" id="s2"></div><div class="step" id="s3"></div></div>
+    <div class="ribbon" aria-hidden="true"></div>
 
     <div class="panel active" id="p1">
       <h2>1) Start your order</h2>
@@ -137,9 +150,9 @@ export function demoHtml({ baseUrl }) {
         </div>
       </div>
         <div class="info neon">
-          <div class="badge">Step 1 • Secure order setup</div>
+          <div class="badge">Step 1 • Share Your Cosmic Energy</div>
           <h3>We lock in your preferences</h3>
-          <p>Your package and add‑ons shape fidelity, report depth, and extras. Change anything later—this just primes the engine.</p>
+          <p>Choose your package and add‑ons. This primes the Soulmate Engine for fidelity, report depth, and extras—modifiable anytime.</p>
           <div class="diagram" aria-hidden="true">
             <div class="chip"><strong>Inputs</strong>Email • Tier • Add‑ons</div>
             <div class="chip"><strong>Engine</strong>Policy‑safe Orchestrator</div>
@@ -186,9 +199,9 @@ export function demoHtml({ baseUrl }) {
         </div>
       </div>
       <div class="info neon">
-        <div class="badge">Step 2 • Gentle analysis</div>
+        <div class="badge">Step 2 • AI & Astrology Unite</div>
         <h3>We read the vibe, never your identity</h3>
-        <p>Optional photo → neutral traits (hair, accessories, style). Birthday → Life Path number that tunes aura color and compatibility motifs. Private data stays private.</p>
+        <p>Upload a photo and answer guided prompts. Our AI extracts neutral visual cues (hair, accessories, style) and computes your numerology Life Path to color‑grade aura and inform compatibility motifs—privacy‑first by design.</p>
         <div class="scanWrap" aria-hidden="true">
           <div class="scanFace"></div>
           <div class="scanLine" id="scan"></div>
@@ -210,9 +223,9 @@ export function demoHtml({ baseUrl }) {
         <button class="btn secondary" id="copyLink">Copy Share Link</button>
       </div>
       <div class="info neon">
-        <div class="badge">Step 3 • Creation</div>
+        <div class="badge">Step 3 • Receive Your Mystical Sketch</div>
         <h3>Your Soulmate Sketch—crafted with heart</h3>
-        <p>We blend your preferences, neutral photo cues, and numerology hints to render an elegant portrait + a grounded story. Social and PDF outputs are optimized and ready.</p>
+        <p>We blend preferences, neutral photo cues, and numerology hints to render a stunning portrait and a grounded compatibility report—optimized for social sharing and PDF.</p>
         <div class="network" aria-hidden="true" id="net">
           <div class="dot"></div>
           <div class="dot"></div>
@@ -390,6 +403,22 @@ export function demoHtml({ baseUrl }) {
       layout();
       window.addEventListener('resize', layout);
     });
+
+    // Animate headline stats once on load
+    function animateCount(el, target, suffix=""){
+      if(!el) return; let v = 0; const dur = 1200; const t0 = performance.now();
+      function step(t){
+        const p = Math.min(1, (t - t0) / dur);
+        const eased = 1 - Math.pow(1-p, 3);
+        const n = Math.floor(eased * target);
+        el.textContent = (suffix ? n : n.toLocaleString()) + (suffix || "");
+        if(p<1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+    animateCount(document.getElementById('m1'), 50000, "+");
+    animateCount(document.getElementById('m2'), 89, "%");
+    (function(){ const m3=document.getElementById('m3'); if(m3){ m3.textContent = '48hrs'; }})();
   </script>
 </body>
 </html>`;
