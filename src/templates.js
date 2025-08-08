@@ -75,8 +75,8 @@ export function demoHtml({ baseUrl }) {
         <label>Package</label>
         <select id="tier">
           <option value="basic">Basic ($19)</option>
-          <option value="premium" selected>Premium ($39)</option>
-          <option value="deluxe">Deluxe ($69)</option>
+          <option value="premium">Premium ($39)</option>
+          <option value="deluxe" selected>Deluxe ($69)</option>
         </select>
       </div>
       <div>
@@ -90,9 +90,9 @@ export function demoHtml({ baseUrl }) {
       <div>
         <label>Add-ons</label>
         <div class="row">
-          <label><input type="checkbox" value="aura" class="addon"/> Aura reading</label>
-          <label><input type="checkbox" value="twin_flame" class="addon"/> Twin Flame</label>
-          <label><input type="checkbox" value="past_life" class="addon"/> Past life</label>
+          <label><input type="checkbox" value="aura" class="addon" checked/> Aura reading</label>
+          <label><input type="checkbox" value="twin_flame" class="addon" checked/> Twin Flame</label>
+          <label><input type="checkbox" value="past_life" class="addon" checked/> Past life</label>
         </div>
       </div>
       <div class="actions">
