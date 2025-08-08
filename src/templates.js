@@ -436,7 +436,7 @@ export function demoHtml({ baseUrl }) {
           const p = i/dots; const x = p*canvas.width;
           const y = canvas.height*0.5 + Math.sin(t*2 + p*6)*12 + Math.sin(t + p*12)*6;
           const r = 1.5 + Math.cos(t*2 + i)*0.8;
-          ctx.fillStyle = `hsla(${hue + Math.sin(p*8+t)*20}, 80%, 70%, 0.45)`;
+          ctx.fillStyle = 'hsla(' + (hue + Math.sin(p*8+t)*20) + ', 80%, 70%, 0.45)';
           ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
         }
         requestAnimationFrame(draw);
