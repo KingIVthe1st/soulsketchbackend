@@ -7,10 +7,36 @@ import sharp from 'sharp';
 const hasOpenAIKey = Boolean(process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'sk-replace-me');
 const openai = hasOpenAIKey ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
 
+export async function analyzePhoto({ photoPath }) {
+  try {
+    if (!openai || !photoPath || !fs.existsSync(photoPath)) return null;
+    const fileBuf = await fs.promises.readFile(photoPath);
+    const b64 = fileBuf.toString('base64');
+    const dataUrl = `data:image/${path.extname(photoPath).slice(1) || 'jpeg'};base64,${b64}`;
+    const resp = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: 'You are a concise vision assistant. Describe only neutral, visible attributes. Avoid guessing identity, ethnicity, or private traits.' },
+        { role: 'user', content: [
+          { type: 'text', text: 'Extract a compact JSON of visible attributes to inform a soulmate sketch. Use keys: skin_tone (very light|light|medium|tan|brown|dark), eye_color, hair_color, hair_style, facial_hair (none|stubble|beard|mustache), accessories (comma-separated like glasses, earrings), style_vibe (1-3 words), age_bracket (e.g., mid-20s). Do NOT include race or identity labels. Return ONLY JSON.' },
+          { type: 'image_url', image_url: { url: dataUrl } }
+        ]}
+      ],
+      temperature: 0.3,
+    });
+    const content = resp.choices[0]?.message?.content?.trim() || '{}';
+    try { return JSON.parse(content); } catch { return null; }
+  } catch (err) {
+    console.error('analyzePhoto failed:', err?.message || err);
+    return null;
+  }
+}
+
 export async function generateProfileText({ quiz, tier, addons }) {
   const interest = (quiz?.interest || 'surprise').toLowerCase();
   const genderInstruction = interest === 'male' ? 'The soulmate should be male.' : interest === 'female' ? 'The soulmate should be female.' : 'Choose whichever gender best matches the user’s vibe.';
-  const prompt = `You are "Soulmate Sketch" AI. Create a concise, romantic but grounded soulmate profile based on user's answers. Include: name (plausible), personality traits, attachment style, love languages, ideal first meeting scenario, "what they're looking for now", and optional astrology/numerology if requested. Keep to ~350-500 words.\nUser Answers: ${JSON.stringify(quiz)}\nTier: ${tier}\nAddons: ${JSON.stringify(addons)}\nStyle: empathetic, modern, slightly mystical, zero medical claims, zero guarantees.`;
+  const photoHints = quiz?.photo_hints ? `\nPhoto hints (neutral attributes): ${JSON.stringify(quiz.photo_hints)}` : '';
+  const prompt = `You are "Soulmate Sketch" AI. Create a concise, romantic but grounded soulmate profile based on user's answers. Include: name (plausible), personality traits, attachment style, love languages, ideal first meeting scenario, "what they're looking for now", and optional astrology/numerology if requested. Keep to ~350-500 words.\nUser Answers: ${JSON.stringify(quiz)}${photoHints}\nTier: ${tier}\nAddons: ${JSON.stringify(addons)}\nStyle: empathetic, modern, slightly mystical, zero medical claims, zero guarantees.`;
   if (!openai) {
     return `Name: Aiden (or similar)\n\nEssence: Warm, grounded, quietly confident. Likely to notice little details about you and make you feel safe to be fully yourself.\n\nAttachment & Love: Secure leaning. Gives reassurance without being overbearing. Primary love languages: Quality Time and Words of Affirmation.\n\nHow you meet: A calm setting where conversation flows—think a cozy cafe on a rainy day, a local bookstore aisle, or a friend’s intimate gathering. You’ll feel a sense of instant familiarity.\n\nRight now: Looking for a relationship that feels like a deep exhale—steady, playful, and honest. Values consistency, humor, and shared little rituals.\n\nAstro vibes (light): Complimentary energy balance with you (yin/yang). Numerology suggests a 2 or 6 life-path resonance—cooperation, care, and home-building.\n\nDisclaimer: This is an inspirational guide for reflection, not a prediction.`;
   }
@@ -40,7 +66,8 @@ export async function generateImage({ style, quiz }) {
     mystical: 'mystical fantasy portrait, arcane symbols, aura, elegant, painterly'
   };
   const stylePrompt = styleMap[style] || styleMap.ethereal;
-  const basePrompt = `A ${genderPhrase} portrait of the user's ideal soulmate based on their preferences. Avoid celebrity likeness. Tasteful, kind eyes, warm presence. ${stylePrompt}`;
+  const hintText = quiz?.photo_hints ? ` Use these neutral reference traits gleaned from the user's photo to harmonize aesthetics (not identity): ${JSON.stringify(quiz.photo_hints)}.` : '';
+  const basePrompt = `A ${genderPhrase} portrait of the user's ideal soulmate based on their preferences. Avoid celebrity likeness. Tasteful, kind eyes, warm presence.${hintText} ${stylePrompt}`;
   let buffer;
   if (!openai) {
     // Fallback: generate a soft gradient placeholder with text

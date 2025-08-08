@@ -5,7 +5,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { getDb } from './db.js';
 import { getPriceCentsForTier } from './payments.js';
-import { generateProfileText, generateImage, generatePdf } from './ai.js';
+import { generateProfileText, generateImage, generatePdf, analyzePhoto } from './ai.js';
 
 const upload = multer({ dest: path.join(process.cwd(), 'uploads') });
 
@@ -36,6 +36,11 @@ export function createRouter() {
     }
 
     const quiz = JSON.parse(req.body.quiz || '{}');
+    // Analyze uploaded photo for neutral, visible attributes to steer generation
+    if (photoPath) {
+      const hints = await analyzePhoto({ photoPath: path.join(process.cwd(), photoPath) });
+      if (hints) quiz.photo_hints = hints;
+    }
     db.prepare('UPDATE orders SET photo_path = ?, quiz_answers = ?, updated_at = ? WHERE id = ?')
       .run(photoPath, JSON.stringify(quiz), new Date().toISOString(), id);
 
