@@ -58,14 +58,23 @@ export function demoHtml({ baseUrl }) {
     @keyframes spin { to { transform: rotate(360deg) } }
 
     /* Explainer visuals */
-    .info { position: relative; overflow: hidden; border-radius: 16px; padding: 16px; background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.65)); border: 1px solid rgba(233, 225, 245, 0.9); box-shadow: 0 18px 48px rgba(43,0,62,.08); }
-    .info.neon { border: none; }
-    .info.neon::before { content:""; position:absolute; inset: -1px; border-radius: 18px; padding: 1px; background: conic-gradient(from 0deg, var(--pink), var(--accent), var(--pink)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: spin 6s linear infinite; }
-    .info h3 { margin: 0 0 6px; font-size: 16px; letter-spacing: .2px }
-    .info p { margin: 0; color: #5a516e; font-size: 13px; line-height: 1.5 }
-    .badge { display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:12px; color: var(--accent); background: rgba(143,106,224,.12); padding:6px 10px; border-radius: 999px; margin-bottom:8px }
+    /* HOLO CARDS (Investor-grade explainers) */
+    .holo { position: relative; overflow: hidden; border-radius: 18px; padding: 18px; background: linear-gradient(180deg, rgba(255,255,255,0.86), rgba(255,255,255,0.62)); border: 1px solid rgba(232,224,246,.85); box-shadow: 0 20px 60px rgba(43,0,62,.12), inset 0 1px 0 rgba(255,255,255,.8); }
+    .holo::before { content:""; position:absolute; inset:-1px; border-radius:20px; padding:1px; background: conic-gradient(from 0deg, rgba(235,59,134,.9), rgba(103,58,183,.9), rgba(235,59,134,.9)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: spin 8s linear infinite; opacity:.55 }
+    .holoHeader { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px }
+    .badge { display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:12px; color: var(--accent); background: linear-gradient(90deg, rgba(143,106,224,.15), rgba(235,59,134,.12)); padding:6px 12px; border-radius: 999px }
+    .pulse { width:10px; height:10px; border-radius:999px; background: radial-gradient(circle at 40% 40%, #fff, var(--accent)); box-shadow: 0 0 0 0 rgba(103,58,183,.35); animation: pulseGlow 2.2s ease-out infinite }
+    @keyframes pulseGlow { 0%{ box-shadow: 0 0 0 0 rgba(103,58,183,.35) } 100%{ box-shadow: 0 0 0 18px rgba(103,58,183,0) } }
+    .holoTitle { font-weight:800; font-size:20px; letter-spacing:.2px; color:#2D2240; margin: 4px 0 4px }
+    .holoSub { color:#5a516e; font-size:13px; margin:0 0 10px }
+    .track { position:relative; height:8px; border-radius:999px; overflow:hidden; background: linear-gradient(90deg, #edd8ef, #f4e6f8) }
+    .track > span { position:absolute; inset:0; background: linear-gradient(90deg, transparent, var(--pink), var(--accent), transparent); animation: sweep 2.4s ease-in-out infinite }
+    .caps { display:grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap:10px; margin-top:10px }
+    .cap { border-radius:14px; border:1px solid rgba(232,224,246,.95); background: rgba(255,255,255,.92); padding:12px; text-align:center; box-shadow: 0 10px 28px rgba(43,0,62,.08) }
+    .cap strong { display:block; font-size:14px; color:#2D2240 }
+    .cap small { color:#5b4a86; font-size:12px }
     .fx { position:absolute; inset:0; z-index:0; filter: saturate(1.05) contrast(1.05) }
-    .info > *:not(canvas) { position: relative; z-index: 1 }
+    .holo > *:not(canvas) { position: relative; z-index: 1 }
     .floaty { position:absolute; inset:auto; pointer-events:none; opacity:.8; filter: blur(0.2px) saturate(1.1) }
     .floaty.one { right:-10px; top:-10px; width:160px; height:160px; background: radial-gradient(60px 60px at 60% 30%, rgba(235,59,134,.28), transparent 60%), radial-gradient(60px 60px at 20% 80%, rgba(103,58,183,.24), transparent 60%); border-radius:50%; animation: float 9s ease-in-out infinite }
     .floaty.two { left:-20px; bottom:-20px; width:120px; height:120px; background: radial-gradient(50px 50px at 40% 50%, rgba(255,255,255,.55), transparent 60%); border-radius:50%; animation: float 11s ease-in-out infinite reverse }
@@ -151,16 +160,16 @@ export function demoHtml({ baseUrl }) {
           <label><input type="checkbox" value="past_life" class="addon" checked/> Past life</label>
         </div>
       </div>
-        <div class="info neon">
+        <div class="holo">
           <canvas class="fx" id="fx1"></canvas>
-          <div class="badge">Step 1 • Share Your Cosmic Energy</div>
-          <h3>Orchestrating your request</h3>
-          <p>Tier and add‑ons configure fidelity, report depth, and delivery—our orchestrator spins up the right pipelines instantly.</p>
-          <div class="diagram" aria-hidden="true">
-            <div class="chip"><strong>Inputs</strong>Email • Tier • Add‑ons</div>
-            <div class="chip"><strong>Engine</strong>Policy‑safe Orchestrator</div>
-            <div class="chip"><strong>Outputs</strong>Sketch • PDF • Story</div>
-            <div class="flow"></div>
+          <div class="holoHeader"><div class="badge">Step 1 • Share Your Cosmic Energy</div><div class="pulse" aria-hidden="true"></div></div>
+          <div class="holoTitle">AI Orchestration Initialized</div>
+          <p class="holoSub">Tier & add‑ons configure fidelity, report depth, and delivery. The orchestrator provisions the exact pipelines instantly.</p>
+          <div class="track" aria-hidden="true"><span></span></div>
+          <div class="caps" aria-hidden="true">
+            <div class="cap"><strong>Inputs</strong><small>Email • Tier • Add‑ons</small></div>
+            <div class="cap"><strong>Engine</strong><small>Policy‑safe Orchestrator</small></div>
+            <div class="cap"><strong>Outputs</strong><small>Sketch • PDF • Story</small></div>
           </div>
         </div>
       <div class="actions">
@@ -200,11 +209,12 @@ export function demoHtml({ baseUrl }) {
           <button class="btn secondary" id="submitQuiz">Continue</button>
         </div>
       </div>
-      <div class="info neon">
+      <div class="holo">
         <canvas class="fx" id="fx2"></canvas>
-        <div class="badge">Step 2 • AI & Astrology Unite</div>
-        <h3>We read the vibe, never your identity</h3>
-        <p>Optional photo → neutral visual traits. Birthday → Life Path to tune aura and compatibility motifs. Private by default.</p>
+        <div class="holoHeader"><div class="badge">Step 2 • AI & Astrology Unite</div><div class="pulse"></div></div>
+        <div class="holoTitle">We read the vibe, never identity</div>
+        <p class="holoSub">Optional photo → neutral, visible traits (hair, accessories, style). Birthday → Life Path that tunes aura color & compatibility motifs. Private by default.</p>
+        <div class="track" aria-hidden="true"><span></span></div>
         <div class="scanWrap" aria-hidden="true">
           <div class="scanFace"></div>
           <div class="scanLine" id="scan"></div>
@@ -225,11 +235,12 @@ export function demoHtml({ baseUrl }) {
         <a id="storyLink" class="btn ghost" target="_blank">Open Story Image</a>
         <button class="btn secondary" id="copyLink">Copy Share Link</button>
       </div>
-      <div class="info neon">
+      <div class="holo">
         <canvas class="fx" id="fx3"></canvas>
-        <div class="badge">Step 3 • Receive Your Mystical Sketch</div>
-        <h3>Your Soulmate Sketch—crafted with heart</h3>
-        <p>Preferences + neutral photo cues + numerology hints → an elegant portrait and compatibility report—social‑ready & PDF.</p>
+        <div class="holoHeader"><div class="badge">Step 3 • Receive Your Mystical Sketch</div><div class="pulse"></div></div>
+        <div class="holoTitle">Creation & Output</div>
+        <p class="holoSub">Preferences + neutral photo cues + numerology hints → stunning portrait & grounded profile—optimized for social and PDF.</p>
+        <div class="track" aria-hidden="true"><span></span></div>
         <div class="network" aria-hidden="true" id="net">
           <div class="dot"></div>
           <div class="dot"></div>
